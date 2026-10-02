@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useCartStore } from "../store/cartStore";
 
 // ─── Environment Variables ──────────────────────────────────────────────────
-const OWNER_UPI_ID = import.meta.env.VITE_OWNER_UPI_ID || "yourname@upi";
 const OWNER_WHATSAPP = import.meta.env.VITE_OWNER_WHATSAPP || "919876543210";
 const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || "";
 // ──────────────────────────────────────────────────────────────────────────────
@@ -103,22 +102,6 @@ export const Checkout = () => {
     setModal("upi-select");
   };
 
-  // ── UPI deep link builder ───────────────────────────────────────────────────
-  const buildUpiUrl = (scheme: string) => {
-    const note = encodeURIComponent(`MagnetMemorie-${Date.now()}`);
-    const name = encodeURIComponent("Magnet Memorie");
-    return `${scheme}://upi/pay?pa=${OWNER_UPI_ID}&pn=${name}&am=${grandTotal}&tn=${note}&cu=INR`;
-  };
-
-  const openUpi = (type: "gpay" | "phonepe" | "bhim") => {
-    const schemes: Record<string, string> = {
-      gpay: "gpay",
-      phonepe: "phonepe",
-      bhim: "upi",
-    };
-    window.location.href = buildUpiUrl(schemes[type]);
-    setModal(type);
-  };
 
   // ── Compress image via canvas before upload ─────────────────────────────────
   const compressImage = (dataUrl: string, maxWidth = 1200, quality = 0.8): Promise<string> =>
