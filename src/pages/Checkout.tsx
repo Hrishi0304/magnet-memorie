@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useCartStore } from "../store/cartStore";
 
-// ─── Replace these three values with your own ────────────────────────────────
-const OWNER_UPI_ID = "yourname@upi";                   // e.g. "magnetmemorie@okaxis"
-const OWNER_WHATSAPP = "919029914442";                   // 91 + 10-digit number
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUaZdCj8VCQTostTut9pnmrrbhCKCPJanzoPZ7SacJzgGXgcKk_7NawVD9tvgnfGgMtA/exec"; // from script.google.com deploy
+// ─── Environment Variables ──────────────────────────────────────────────────
+const OWNER_UPI_ID = import.meta.env.VITE_OWNER_UPI_ID || "yourname@upi";
+const OWNER_WHATSAPP = import.meta.env.VITE_OWNER_WHATSAPP || "919876543210";
+const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || "";
 // ──────────────────────────────────────────────────────────────────────────────
 
 type PaymentModal = "upi-select" | "gpay" | "phonepe" | "bhim" | "whatsapp" | null;
@@ -473,58 +473,14 @@ export const Checkout = () => {
             {/* ── UPI Selector ── */}
             {modal === "upi-select" && (
               <>
-                <div className="p-6 border-b border-surface-variant">
-                  <h3 className="font-headline-md text-headline-md text-primary mb-1">Choose Payment Method</h3>
-                  <p className="font-label-sm text-on-surface-variant">Total: <strong className="text-primary">₹{grandTotal}</strong></p>
+                <div className="p-6 border-b border-surface-variant text-center">
+                  <div className="w-16 h-16 rounded-full bg-[#25D366]/10 flex items-center justify-center mx-auto mb-4">
+                    <span className="material-symbols-outlined text-[#25D366] text-3xl">chat</span>
+                  </div>
+                  <h3 className="font-headline-md text-headline-md text-primary mb-2">Almost Done!</h3>
+                  <p className="font-label-sm text-on-surface-variant">Send your order via WhatsApp to receive your unique payment link.</p>
                 </div>
                 <div className="p-4 flex flex-col gap-3">
-                  <button
-                    onClick={() => openUpi("gpay")}
-                    className="flex items-center gap-4 w-full p-4 rounded-xl border border-outline-variant/40 hover:bg-surface-container hover:border-secondary/50 transition-all"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0">
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/512px-Google_Pay_Logo.svg.png" alt="GPay" className="w-6 h-6 object-contain" />
-                    </div>
-                    <div className="text-left">
-                      <span className="block font-body-md font-semibold text-primary">Google Pay</span>
-                      <span className="block font-label-sm text-on-surface-variant">Opens GPay app</span>
-                    </div>
-                    <span className="material-symbols-outlined ml-auto text-on-surface-variant">chevron_right</span>
-                  </button>
-
-                  <button
-                    onClick={() => openUpi("phonepe")}
-                    className="flex items-center gap-4 w-full p-4 rounded-xl border border-outline-variant/40 hover:bg-surface-container hover:border-secondary/50 transition-all"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-[#5f259f] flex items-center justify-center shadow-sm shrink-0">
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/512px-PhonePe_Logo.svg.png" alt="PhonePe" className="w-6 h-6 object-contain" />
-                    </div>
-                    <div className="text-left">
-                      <span className="block font-body-md font-semibold text-primary">PhonePe</span>
-                      <span className="block font-label-sm text-on-surface-variant">Opens PhonePe app</span>
-                    </div>
-                    <span className="material-symbols-outlined ml-auto text-on-surface-variant">chevron_right</span>
-                  </button>
-
-                  <button
-                    onClick={() => openUpi("bhim")}
-                    className="flex items-center gap-4 w-full p-4 rounded-xl border border-outline-variant/40 hover:bg-surface-container hover:border-secondary/50 transition-all"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0">
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/BHIM_Logo.svg/512px-BHIM_Logo.svg.png" alt="BHIM" className="w-6 h-6 object-contain" />
-                    </div>
-                    <div className="text-left">
-                      <span className="block font-body-md font-semibold text-primary">BHIM UPI</span>
-                      <span className="block font-label-sm text-on-surface-variant">Any UPI app selector</span>
-                    </div>
-                    <span className="material-symbols-outlined ml-auto text-on-surface-variant">chevron_right</span>
-                  </button>
-
-                  <div className="flex items-center gap-2 my-1">
-                    <div className="flex-1 h-px bg-surface-variant" />
-                    <span className="font-label-sm text-on-surface-variant text-xs">then</span>
-                    <div className="flex-1 h-px bg-surface-variant" />
-                  </div>
 
                   <button
                     onClick={handleWhatsAppClick}
