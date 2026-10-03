@@ -153,7 +153,7 @@ export const BulkOrders = () => {
 
             {/* Event Order — occasion type + quantity */}
             {orderMode === "event" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5" style={{ animation: "fadeSlideIn 0.2s ease forwards" }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-20" style={{ animation: "fadeSlideIn 0.2s ease forwards" }}>
                 <CustomSelect
                   id="bulk-event"
                   label="Event / Occasion"
