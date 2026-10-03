@@ -168,8 +168,7 @@ export const Checkout = () => {
       `*Customer:* ${form.name}\n` +
       `*Phone:* ${form.phone}\n` +
       (form.email ? `*Email:* ${form.email}\n` : "") +
-      `*Address:* ${fullAddress}\n` +
-      `*Shipping:* ${shippingMethod === "express" ? "Express (₹99)" : "Standard (Free)"}\n\n` +
+      `*Address:* ${fullAddress}\n\n` +
       `*Items:*\n${buildOrderSummary()}\n\n` +
       `*Subtotal:* ₹${total.toFixed(0)}\n` +
       `*Tax (18%):* ₹${estimatedTax.toFixed(0)}\n` +
