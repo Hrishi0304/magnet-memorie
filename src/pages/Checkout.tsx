@@ -27,16 +27,13 @@ export const Checkout = () => {
   });
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState("");
-  const [shippingMethod, setShippingMethod] = useState<"standard" | "express">("standard");
-
   // ── Payment Modal State ─────────────────────────────────────────────────────
   const [modal, setModal] = useState<PaymentModal>(null);
   const [formError, setFormError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
-  const shippingCost = shippingMethod === "express" ? 99 : 0;
-  const grandTotal = (finalTotal + shippingCost).toFixed(2);
+  const grandTotal = finalTotal.toFixed(2);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -309,68 +306,7 @@ export const Checkout = () => {
               </div>
             </section>
 
-            {/* Step 2 — Shipping Method */}
-            <section aria-labelledby="method-heading" className="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/30 p-stack-md md:p-stack-lg">
-              <div className="flex items-center gap-3 mb-stack-md">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-surface-container-highest text-primary font-label-md">2</span>
-                <h2 id="method-heading" className="font-headline-md text-headline-md text-primary">Shipping Method</h2>
-              </div>
-              <div className="flex flex-col gap-3">
-                <label className={`flex items-center justify-between p-4 border rounded cursor-pointer transition-colors ${shippingMethod === "standard" ? "border-secondary bg-secondary/5" : "border-outline-variant/50 hover:border-secondary/50"}`}>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio" name="shipping" checked={shippingMethod === "standard"}
-                      onChange={() => setShippingMethod("standard")}
-                      className="w-5 h-5 text-secondary border-outline focus:ring-secondary"
-                    />
-                    <div>
-                      <span className="block font-body-md font-semibold text-primary">Standard Shipping</span>
-                      <span className="block font-label-sm text-on-surface-variant">3–5 Business Days</span>
-                    </div>
-                  </div>
-                  <span className="font-body-md font-semibold text-primary">Free</span>
-                </label>
-                <label className={`flex items-center justify-between p-4 border rounded cursor-pointer transition-colors ${shippingMethod === "express" ? "border-secondary bg-secondary/5" : "border-outline-variant/50 hover:border-secondary/50"}`}>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio" name="shipping" checked={shippingMethod === "express"}
-                      onChange={() => setShippingMethod("express")}
-                      className="w-5 h-5 text-secondary border-outline focus:ring-secondary"
-                    />
-                    <div>
-                      <span className="block font-body-md font-semibold text-primary">Express Shipping</span>
-                      <span className="block font-label-sm text-on-surface-variant">1–2 Business Days</span>
-                    </div>
-                  </div>
-                  <span className="font-body-md font-semibold text-primary">₹99</span>
-                </label>
-              </div>
-            </section>
 
-            {/* Step 3 — Payment Info */}
-            <section aria-labelledby="payment-heading" className="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/30 p-stack-md md:p-stack-lg">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-surface-container-highest text-primary font-label-md">3</span>
-                <h2 id="payment-heading" className="font-headline-md text-headline-md text-primary">Payment</h2>
-              </div>
-              <p className="font-body-md text-on-surface-variant mb-4">We accept UPI payments — fast, secure, no card details needed.</p>
-              <div className="flex flex-wrap gap-3">
-                {[
-                  { label: "Google Pay", icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/512px-Google_Pay_Logo.svg.png" },
-                  { label: "PhonePe", icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/512px-PhonePe_Logo.svg.png" },
-                  { label: "BHIM UPI", icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/BHIM_Logo.svg/512px-BHIM_Logo.svg.png" },
-                ].map((p) => (
-                  <div key={p.label} className="flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant/40 bg-surface-container">
-                    <img src={p.icon} alt={p.label} className="w-5 h-5 object-contain" onError={(e) => { e.currentTarget.style.display = "none"; }} />
-                    <span className="font-label-sm text-label-sm text-on-surface-variant">{p.label}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="font-label-sm text-[11px] text-on-surface-variant mt-3 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px]">lock</span>
-                You'll choose your UPI app after reviewing the order summary.
-              </p>
-            </section>
           </div>
 
           {/* ── Right Column: Order Summary ───────────────────────────── */}
@@ -406,10 +342,7 @@ export const Checkout = () => {
                   <span className="text-on-surface-variant">Subtotal</span>
                   <span>₹{total.toFixed(0)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-on-surface-variant">Shipping</span>
-                  <span>{shippingMethod === "express" ? "₹99" : "Free"}</span>
-                </div>
+
                 <div className="flex justify-between">
                   <span className="text-on-surface-variant">GST (18%)</span>
                   <span>₹{estimatedTax.toFixed(0)}</span>
@@ -461,7 +394,7 @@ export const Checkout = () => {
                     <span className="material-symbols-outlined text-[#25D366] text-3xl">chat</span>
                   </div>
                   <h3 className="font-headline-md text-headline-md text-primary mb-2">Almost Done!</h3>
-                  <p className="font-label-sm text-on-surface-variant">Send your order via WhatsApp to receive your unique payment link.</p>
+                  <p className="font-label-sm text-on-surface-variant">Send your order via WhatsApp to confirm and complete your purchase.</p>
                 </div>
                 <div className="p-4 flex flex-col gap-3">
 

@@ -27,7 +27,3 @@ dist-ssr
 *.env
 .env
 
-# WhatsApp Bot files
-whatsapp-bot/node_modules
-whatsapp-bot/.wwebjs_auth
-whatsapp-bot/.wwebjs_cache
