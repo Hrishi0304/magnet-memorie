@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
 
 // ─── Environment Variables ──────────────────────────────────────────────────
@@ -8,23 +9,26 @@ const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || "";
 
 type PaymentModal = "upi-select" | "gpay" | "phonepe" | "bhim" | "whatsapp" | null;
 
+const initialForm = {
+  name: "",
+  phone: "",
+  email: "",
+  address: "",
+  city: "",
+  state: "",
+  pincode: "",
+};
+
 export const Checkout = () => {
+  const navigate = useNavigate();
   const { items, totalPrice, clearCart } = useCartStore();
 
   const total = totalPrice();
-  const estimatedTax = total * 0.18;
-  const finalTotal = total + estimatedTax;
+  const deliveryFee = total === 0 ? 0 : total >= 1499 ? 0 : 60;
+  const finalTotal = total === 0 ? 0 : total + deliveryFee;
 
   // ── Form State ──────────────────────────────────────────────────────────────
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
-  });
+  const [form, setForm] = useState(initialForm);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState("");
   // ── Payment Modal State ─────────────────────────────────────────────────────
@@ -33,7 +37,7 @@ export const Checkout = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
-  const grandTotal = finalTotal.toFixed(2);
+  const grandTotal = finalTotal.toFixed(0);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -78,7 +82,7 @@ export const Checkout = () => {
 
   const buildOrderSummary = () => {
     const lines = items.map(
-      (item) => `• ${item.title} ×${item.quantity} = ₹${(item.price * item.quantity).toFixed(0)}`
+      (item) => `• ${item.title} x${item.quantity} = ₹${(item.price * item.quantity).toFixed(0)}`
     );
     return lines.join("\n");
   };
@@ -138,11 +142,11 @@ export const Checkout = () => {
 
     const customerFolderName = `${orderId}_${form.name.trim()}`;
 
-    // fire-and-forget — no-cors bypasses Apps Script's redirect CORS issue
+    // fire-and-forget no-cors bypasses Apps Script's redirect CORS issue
     // We can't read the response in no-cors, so upload is best-effort
     fetch(APPS_SCRIPT_URL, {
       method: "POST",
-      mode: "no-cors",          // key fix — skips preflight & redirect issue
+      mode: "no-cors",          // key fix skips preflight & redirect issue
       body: JSON.stringify({
         customerName: customerFolderName,
         orderDate: todayDateTime,
@@ -155,13 +159,8 @@ export const Checkout = () => {
     return `MagnetMemorie Orders / ${customerFolderName}_${todayDateTime}`;
   };
 
-  // ── Build folder path line for WhatsApp message ──────────────────────────────
-  const buildPhotoLines = (folderPath: string): string =>
-    `Photos uploaded to Google Drive:\n📁 ${folderPath}`;
-
-  const openWhatsApp = async (orderId: string, folderPath?: string) => {
+  const openWhatsApp = async (orderId: string) => {
     const fullAddress = [form.address, form.city, form.state, form.pincode].filter(Boolean).join(", ");
-    const photoLines = folderPath ? buildPhotoLines(folderPath) : "No photos uploaded.";
     const text = encodeURIComponent(
       `🧲 *New MagnetMemorie Order*\n\n` +
       `*Order ID:* ${orderId}\n` +
@@ -171,9 +170,8 @@ export const Checkout = () => {
       `*Address:* ${fullAddress}\n\n` +
       `*Items:*\n${buildOrderSummary()}\n\n` +
       `*Subtotal:* ₹${total.toFixed(0)}\n` +
-      `*Tax (18%):* ₹${estimatedTax.toFixed(0)}\n` +
-      `*Total Paid:* ₹${grandTotal}\n\n` +
-      `*Photos (Google Drive):*\n${photoLines}`
+      `*Delivery:* ${deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}\n` +
+      `*Total:* ₹${grandTotal}`
     );
     window.open(`https://wa.me/${OWNER_WHATSAPP}?text=${text}`, "_blank");
     setModal("whatsapp");
@@ -188,8 +186,10 @@ export const Checkout = () => {
 
     try {
       const hasPhotos = items.some((item) => item.uploads.length > 0);
-      const folderPath = hasPhotos ? await uploadPhotosToDrive(orderId) : undefined;
-      await openWhatsApp(orderId, folderPath);
+      if (hasPhotos) {
+        await uploadPhotosToDrive(orderId);
+      }
+      await openWhatsApp(orderId);
     } catch (err) {
       console.error("Upload error:", err);
       setUploadError("Photo upload failed. Opening WhatsApp without Drive link.");
@@ -199,16 +199,39 @@ export const Checkout = () => {
     }
   };
 
+  const handleDone = () => {
+    setModal(null);
+    clearCart();
+    setForm(initialForm);
+    setFormError("");
+    setUploadError("");
+    setLocationError("");
+    navigate("/");
+  };
+
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <>
       <main className="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+        {items.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <span className="material-symbols-outlined text-6xl text-on-surface-variant/40 mb-4">shopping_bag</span>
+            <h2 className="font-headline-md text-headline-md text-primary mb-2">Your cart is empty</h2>
+            <p className="font-body-md text-on-surface-variant mb-6">Add some photo magnets to your cart to checkout.</p>
+            <button
+              onClick={() => navigate("/")}
+              className="px-8 py-3 bg-secondary text-on-secondary font-label-md rounded shadow-sm hover:opacity-90 transition-all"
+            >
+              Continue Shopping
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
 
           {/* ── Left Column ──────────────────────────────────────────────── */}
           <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-stack-lg">
 
-            {/* Step 1 — Contact & Delivery Address */}
+            {/* Step 1 Contact & Delivery Address */}
             <section aria-labelledby="shipping-heading" className="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/30 p-stack-md md:p-stack-lg">
               <div className="flex items-center gap-3 mb-stack-md">
                 <span className="flex items-center justify-center w-8 h-8 rounded-full bg-surface-container-highest text-primary font-label-md">1</span>
@@ -341,15 +364,15 @@ export const Checkout = () => {
                   <span className="text-on-surface-variant">Subtotal</span>
                   <span>₹{total.toFixed(0)}</span>
                 </div>
-
+                
                 <div className="flex justify-between">
-                  <span className="text-on-surface-variant">GST (18%)</span>
-                  <span>₹{estimatedTax.toFixed(0)}</span>
+                  <span className="text-on-surface-variant">Delivery</span>
+                  <span>{deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}</span>
                 </div>
               </div>
               <div className="flex justify-between items-end mb-stack-lg">
                 <span className="font-body-lg font-semibold text-primary">Total</span>
-                <span className="font-headline-md text-headline-md text-primary">₹{(parseFloat(grandTotal)).toFixed(0)}</span>
+                <span className="font-headline-md text-headline-md text-primary">₹{grandTotal}</span>
               </div>
 
               {/* Error */}
@@ -366,7 +389,7 @@ export const Checkout = () => {
                 className="w-full py-4 bg-secondary text-on-secondary font-label-md rounded shadow-sm hover:opacity-90 transition-all flex justify-center items-center gap-2"
               >
                 <span className="material-symbols-outlined text-sm">lock</span>
-                PLACE ORDER — ₹{(parseFloat(grandTotal)).toFixed(0)}
+                PLACE ORDER ₹{grandTotal}
               </button>
 
               <p className="font-label-sm text-[11px] text-center text-on-surface-variant mt-3">
@@ -375,6 +398,7 @@ export const Checkout = () => {
             </section>
           </div>
         </div>
+        )}
       </main>
 
       {/* ── Payment Modal ─────────────────────────────────────────────────────── */}
@@ -479,7 +503,7 @@ export const Checkout = () => {
                   Your order details have been sent to us on WhatsApp. We'll confirm your order and begin production shortly.
                 </p>
                 <button
-                  onClick={() => { setModal(null); clearCart(); }}
+                  onClick={handleDone}
                   className="w-full py-4 bg-secondary text-on-secondary font-label-md rounded-xl hover:opacity-90 transition-opacity"
                 >
                   Done

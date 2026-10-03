@@ -5,7 +5,7 @@ const products = [
     to: "/shop/square-magnets",
     label: "Best Seller",
     title: "Square Magnets",
-    subtitle: "Classic glossy photo magnets in multiple square sizes. Starting at ₹99 per piece.",
+    subtitle: "Classic glossy photo magnets in multiple square sizes. Starting at ₹149 per piece.",
     imageUrl: "/2.5-inch.png",
     cta: "Shop Square Magnets",
   },
@@ -13,7 +13,7 @@ const products = [
     to: "/shop/acrylic-magnets",
     label: "New Arrival",
     title: "Acrylic Magnets",
-    subtitle: "Crystal-clear acrylic with edge-to-edge printing. Thicker, more premium. Starting at ₹129 per piece.",
+    subtitle: "Crystal-clear acrylic with edge-to-edge printing. Thicker, more premium. Starting at ₹199 per piece.",
     imageUrl: "/acrylic-2.png",
     cta: "Shop Acrylic Magnets",
   },
@@ -70,7 +70,7 @@ export const Home = () => {
             Memories that Stick.
           </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mb-8">
-            Turn your favourite photos into premium magnets — Keep your memories close forever.
+            Turn your favourite photos into premium magnets. Keep your memories close forever.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link

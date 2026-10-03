@@ -26,7 +26,7 @@ export const Navbar = () => {
     <header className="bg-white dark:bg-deep-onyx text-primary dark:text-on-primary font-headline-md text-headline-md sticky top-0 w-full z-50 shadow-sm transition-transform duration-300">
       <div className="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
 
-        {/* Left — Hamburger + Logo + Desktop Nav */}
+        {/* Left - Hamburger + Logo + Desktop Nav */}
         <div className="flex items-center gap-2 md:gap-6">
           <button
             className="md:hidden flex items-center justify-center p-2 text-on-surface-variant hover:text-secondary transition-colors duration-200"
@@ -45,7 +45,7 @@ export const Navbar = () => {
           </nav>
         </div>
 
-        {/* Right — Cart only */}
+        {/* Right - Cart only */}
         <div className="flex items-center">
           <Link
             aria-label="Cart"

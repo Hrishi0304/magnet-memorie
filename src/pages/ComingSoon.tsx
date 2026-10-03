@@ -28,7 +28,7 @@ export const ComingSoon = () => {
 
         {/* Headline */}
         <h1 className="font-headline-lg text-headline-lg text-primary mb-4">
-          Chocolates — Coming Soon
+          Chocolates - Coming Soon
         </h1>
 
         {/* Divider */}
@@ -39,7 +39,7 @@ export const ComingSoon = () => {
           We're working on something sweet. Our custom photo chocolates are currently being crafted with the same care and quality you love from our magnets.
         </p>
         <p className="font-body-md text-body-md text-on-surface-variant">
-          Check back soon — or explore our magnets in the meantime.
+          Check back soon - or explore our magnets in the meantime.
         </p>
 
         {/* CTA */}

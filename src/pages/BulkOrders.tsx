@@ -8,8 +8,13 @@ export const BulkOrders = () => {
   const [eventType, setEventType] = useState("");
   const [quantity, setQuantity] = useState("");
   const [eventAddress, setEventAddress] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState({ square: false, acrylic: false });
+  const [squareSize, setSquareSize] = useState("");
+  const [acrylicSize, setAcrylicSize] = useState("");
 
-  const eventQtyOptions = ["100 – 250", "251 – 500", "500 – 1000", "1000+"];
+  const eventQtyOptions = ["100 - 250", "251 - 500", "500 - 1000", "1000+"];
+  const squareSizeOptions = ["2.5×2.5\""];
+  const acrylicSizeOptions = ["2.5×3.5\"", "2.5×3.5\" + Stand", "2.5×6.5\""];
 
   const handleModeChange = (mode: OrderMode) => {
     setOrderMode(mode);
@@ -26,7 +31,7 @@ export const BulkOrders = () => {
             Order in Bulk.<br />Make Every Piece Personal.
           </h1>
           <p className="font-body-lg text-body-lg text-white/70 max-w-xl mx-auto">
-            Weddings, birthdays, corporate gifting, school reunions — we handle large orders with uncompromised quality and fast turnaround.
+            Weddings, birthdays, corporate gifting, school reunions. We handle large orders with uncompromised quality and fast turnaround.
           </p>
         </div>
       </section>
@@ -42,7 +47,7 @@ export const BulkOrders = () => {
           <div className="flex flex-col items-center gap-3">
             <span className="material-symbols-outlined text-[36px] text-magnet-red" style={{ fontVariationSettings: "'FILL' 1" }}>design_services</span>
             <h3 className="font-headline-md text-headline-md text-primary text-[18px]">Custom Branding</h3>
-            <p className="font-body-md text-body-md text-on-surface-variant text-sm">Logo, name, or event date — every magnet can be personalised.</p>
+            <p className="font-body-md text-body-md text-on-surface-variant text-sm">Logo, name, or event date. Every magnet can be personalised.</p>
           </div>
           <div className="flex flex-col items-center gap-3">
             <span className="material-symbols-outlined text-[36px] text-magnet-red" style={{ fontVariationSettings: "'FILL' 1" }}>local_shipping</span>
@@ -135,7 +140,65 @@ export const BulkOrders = () => {
               />
             </div>
 
-            {/* Regular Bulk — just quantity */}
+            {/* Product Selection */}
+            <div>
+              <p className="font-label-sm text-label-sm text-on-surface-variant mb-2">Select Magnet Type(s)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Square Magnets */}
+                <div className={`p-4 rounded-lg border transition-colors ${selectedTypes.square ? 'border-magnet-red bg-magnet-red/5' : 'border-outline-variant/40 bg-white'}`}>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-5 h-5 accent-magnet-red" 
+                      checked={selectedTypes.square}
+                      onChange={(e) => setSelectedTypes(prev => ({ ...prev, square: e.target.checked }))}
+                    />
+                    <span className="font-body-md text-on-surface font-medium">Square Photo Magnets</span>
+                  </label>
+                  
+                  {selectedTypes.square && (
+                    <div className="mt-4" style={{ animation: "fadeSlideIn 0.2s ease forwards" }}>
+                      <CustomSelect
+                        id="bulk-square-size"
+                        label="Size"
+                        placeholder="Select size"
+                        options={squareSizeOptions}
+                        value={squareSize}
+                        onChange={setSquareSize}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Acrylic Magnets */}
+                <div className={`p-4 rounded-lg border transition-colors ${selectedTypes.acrylic ? 'border-magnet-red bg-magnet-red/5' : 'border-outline-variant/40 bg-white'}`}>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-5 h-5 accent-magnet-red" 
+                      checked={selectedTypes.acrylic}
+                      onChange={(e) => setSelectedTypes(prev => ({ ...prev, acrylic: e.target.checked }))}
+                    />
+                    <span className="font-body-md text-on-surface font-medium">Acrylic Photo Magnets</span>
+                  </label>
+                  
+                  {selectedTypes.acrylic && (
+                    <div className="mt-4" style={{ animation: "fadeSlideIn 0.2s ease forwards" }}>
+                      <CustomSelect
+                        id="bulk-acrylic-size"
+                        label="Size"
+                        placeholder="Select size"
+                        options={acrylicSizeOptions}
+                        value={acrylicSize}
+                        onChange={setAcrylicSize}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Regular Bulk - just quantity */}
             {orderMode === "regular" && (
               <div>
                 <label htmlFor="bulk-qty-regular" className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
@@ -151,7 +214,7 @@ export const BulkOrders = () => {
               </div>
             )}
 
-            {/* Event Order — occasion type + quantity */}
+            {/* Event Order - occasion type + quantity */}
             {orderMode === "event" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-20" style={{ animation: "fadeSlideIn 0.2s ease forwards" }}>
                 <CustomSelect
@@ -180,7 +243,7 @@ export const BulkOrders = () => {
               </div>
             )}
 
-            {/* Event Address — only for event orders */}
+            {/* Event Address - only for event orders */}
             {orderMode === "event" && (
               <div style={{ animation: "fadeSlideIn 0.25s ease forwards" }}>
                 <label htmlFor="bulk-event-address" className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
@@ -191,7 +254,7 @@ export const BulkOrders = () => {
                   rows={3}
                   value={eventAddress}
                   onChange={(e) => setEventAddress(e.target.value)}
-                  placeholder={"123, MG Road, Koramangala, Bengaluru — 560034\nor paste a Google Maps link: https://maps.google.com/..."}
+                  placeholder={"123, MG Road, Koramangala, Bengaluru - 560034\nor paste a Google Maps link: https://maps.google.com/..."}
                   className="w-full bg-white rounded px-4 py-3 font-body-md text-on-surface border border-outline-variant/40 focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-colors resize-none"
                   required
                 />

@@ -11,7 +11,7 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   addUpload: (id: string, dataUrl: string) => void;
@@ -25,17 +25,18 @@ export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   addItem: (newItem) => {
     set((state) => {
+      const addQty = newItem.quantity && newItem.quantity > 0 ? newItem.quantity : 1;
       const existingItem = state.items.find(item => item.id === newItem.id);
       if (existingItem) {
         return {
           items: state.items.map(item =>
             item.id === newItem.id
-              ? { ...item, quantity: item.quantity + 1 }
+              ? { ...item, quantity: item.quantity + addQty, uploads: [...item.uploads, ...newItem.uploads] }
               : item
           ),
         };
       }
-      return { items: [...state.items, { ...newItem, quantity: 1 }] };
+      return { items: [...state.items, { ...newItem, quantity: addQty }] };
     });
   },
   removeItem: (id) => {

@@ -67,8 +67,9 @@ export const ProductDetailPage = ({
 
     addItem({
       id: `${selectedVariant.id}-${Date.now()}`,
-      title: `${title} — ${selectedVariant.label}`,
-      price: selectedVariant.price * quantity,
+      title: `${title} ${selectedVariant.label}`,
+      price: selectedVariant.price,
+      quantity: quantity,
       imageUrl: images[0],
       uploads: previews,
     });
@@ -90,7 +91,7 @@ export const ProductDetailPage = ({
       {/* Product Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
-        {/* LEFT — Image Gallery */}
+        {/* LEFT - Image Gallery */}
         <div className="flex flex-col gap-4">
           {/* Main Image */}
           <div className="w-full aspect-square rounded-xl overflow-hidden bg-surface-container relative group">
@@ -107,7 +108,7 @@ export const ProductDetailPage = ({
           </div>
         </div>
 
-        {/* RIGHT — Product Info */}
+        {/* RIGHT - Product Info */}
         <div className="flex flex-col gap-6">
           {/* Category Tag */}
           <p className="font-label-sm text-label-sm text-magnet-red uppercase tracking-widest">{category}</p>
@@ -197,7 +198,7 @@ export const ProductDetailPage = ({
               Upload Your Photos
             </p>
             <p className="font-label-sm text-label-sm text-on-surface-variant mb-4">
-              Upload {quantity} photo{quantity > 1 ? "s" : ""} — one per magnet. High resolution recommended.
+              Upload {quantity} photo{quantity > 1 ? "s" : ""}, one per magnet. High resolution recommended.
             </p>
 
             {/* Drop Zone */}
@@ -279,10 +280,10 @@ export const ProductDetailPage = ({
               }`}
             >
               <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-              {isUploadValid ? `Add to Cart — ₹${(selectedVariant.price * quantity).toFixed(0)}` : `Upload ${quantity} photos to Add`}
+              {isUploadValid ? `Add to Cart ₹${(selectedVariant.price * quantity).toFixed(0)}` : `Upload ${quantity} photos to Add`}
             </button>
             <p className="text-center font-label-sm text-label-sm text-on-surface-variant">
-              Free shipping on orders above ₹499
+              Free shipping on orders above ₹1499
             </p>
           </div>
 

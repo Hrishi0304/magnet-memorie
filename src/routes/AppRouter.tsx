@@ -8,6 +8,8 @@ import { BulkOrders } from "../pages/BulkOrders";
 import { Cart } from "../pages/Cart";
 import { Checkout } from "../pages/Checkout";
 import { Terms } from "../pages/Terms";
+import { Privacy } from "../pages/Privacy";
+import { Shipping } from "../pages/Shipping";
 import { PublicRoute } from "./PublicRoute";
 import { PrivateRoute } from "./PrivateRoute";
 
@@ -29,6 +31,8 @@ export const AppRouter = () => {
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/shipping" element={<Shipping />} />
           </Route>
 
           {/* Restricted Public Routes (e.g. Login, Register - cannot visit if logged in) */}

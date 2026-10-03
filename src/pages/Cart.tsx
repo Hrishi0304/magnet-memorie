@@ -3,18 +3,8 @@ import { Link } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
 
 export const Cart = () => {
-  const { items, updateQuantity, removeItem, totalPrice, addUpload, removeUpload } = useCartStore();
+  const { items, removeItem, totalPrice, addUpload, removeUpload } = useCartStore();
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
-
-  const handleDecrease = (id: string, currentQuantity: number) => {
-    if (currentQuantity > 1) {
-      updateQuantity(id, currentQuantity - 1);
-    }
-  };
-
-  const handleIncrease = (id: string, currentQuantity: number) => {
-    updateQuantity(id, currentQuantity + 1);
-  };
 
   const handleFileChange = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,35 +55,24 @@ export const Cart = () => {
                           <h3 className="font-headline-md text-[20px] leading-[28px] text-primary mb-1">{item.title}</h3>
                           <p className="font-body-md text-body-md text-on-surface-variant mb-3">Selected variant</p>
                         </div>
-                        <span className="font-headline-md text-[20px] leading-[28px] text-primary font-semibold">₹{item.price.toFixed(0)}</span>
+                        <span className="font-headline-md text-[20px] leading-[28px] text-primary font-semibold">₹{(item.price * item.quantity).toFixed(0)}</span>
                       </div>
 
-                      <div className="flex justify-between items-end mt-stack-md sm:mt-0">
-                        {/* Quantity Selector */}
-                        <div className="flex items-center border border-outline-variant rounded bg-surface-container-lowest">
-                          <button
-                            onClick={() => handleDecrease(item.id, item.quantity)}
-                            aria-label="Decrease quantity"
-                            className="px-3 py-1 text-on-surface-variant hover:text-primary transition-colors focus:outline-none"
-                          >
-                            <span className="material-symbols-outlined text-[20px]">remove</span>
-                          </button>
-                          <span className="font-label-md text-label-md text-primary px-3 py-1 border-x border-outline-variant">{item.quantity}</span>
-                          <button
-                            onClick={() => handleIncrease(item.id, item.quantity)}
-                            aria-label="Increase quantity"
-                            className="px-3 py-1 text-on-surface-variant hover:text-primary transition-colors focus:outline-none"
-                          >
-                            <span className="material-symbols-outlined text-[20px]">add</span>
-                          </button>
+                      <div className="flex justify-between items-center mt-stack-md sm:mt-0">
+                        {/* Quantity Display */}
+                        <div className="flex items-center gap-1.5 font-label-md text-label-md text-on-surface-variant">
+                          <span>Qty:</span>
+                          <span className="font-semibold text-primary">{item.quantity}</span>
                         </div>
 
-                        {/* Remove Action */}
+                        {/* Remove Action with Delete Icon */}
                         <button
                           onClick={() => removeItem(item.id)}
-                          className="font-label-md text-label-md text-on-surface-variant hover:text-secondary underline underline-offset-4 transition-colors focus:outline-none"
+                          aria-label="Remove item"
+                          className="flex items-center justify-center w-9 h-9 rounded-full text-on-surface-variant hover:text-secondary hover:bg-secondary/10 transition-colors focus:outline-none"
+                          title="Remove item"
                         >
-                          Remove
+                          <span className="material-symbols-outlined text-[20px]">delete</span>
                         </button>
                       </div>
                     </div>
@@ -138,32 +117,27 @@ export const Cart = () => {
                       </div>
                     )}
 
-                    {/* Upload button / drop zone */}
-                    <div
-                      className={`relative flex items-center justify-center gap-2 border-2 border-dashed rounded-lg py-3 px-4 transition-colors
-                        ${uploadsFull
-                          ? "border-outline-variant/30 bg-surface-container/40 cursor-not-allowed opacity-60"
-                          : "border-secondary/40 bg-secondary/5 hover:bg-secondary/10 cursor-pointer"
-                        }`}
-                      onClick={() => !uploadsFull && fileInputRefs.current[item.id]?.click()}
-                    >
-                      <span className="material-symbols-outlined text-[20px] text-on-surface-variant">
-                        {uploadsFull ? "lock" : "add_photo_alternate"}
-                      </span>
-                      <span className="font-label-sm text-label-sm text-on-surface-variant">
-                        {uploadsFull
-                          ? `Max photos reached (${item.quantity} of ${item.quantity})`
-                          : `Add photo ${item.uploads.length + 1} of ${item.quantity}`}
-                      </span>
-                      <input
-                        ref={(el) => { fileInputRefs.current[item.id] = el; }}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        disabled={uploadsFull}
-                        onChange={(e) => handleFileChange(item.id, e)}
-                      />
-                    </div>
+                    {/* Upload button / drop zone - hidden once all photos are uploaded */}
+                    {!uploadsFull && (
+                      <div
+                        className="relative flex items-center justify-center gap-2 border-2 border-dashed rounded-lg py-3 px-4 border-secondary/40 bg-secondary/5 hover:bg-secondary/10 cursor-pointer transition-colors"
+                        onClick={() => fileInputRefs.current[item.id]?.click()}
+                      >
+                        <span className="material-symbols-outlined text-[20px] text-on-surface-variant">
+                          add_photo_alternate
+                        </span>
+                        <span className="font-label-sm text-label-sm text-on-surface-variant">
+                          Add photo {item.uploads.length + 1} of {item.quantity}
+                        </span>
+                        <input
+                          ref={(el) => { fileInputRefs.current[item.id] = el; }}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleFileChange(item.id, e)}
+                        />
+                      </div>
+                    )}
 
                     {!uploadsFull && (
                       <p className="font-label-sm text-[11px] text-on-surface-variant mt-1.5">
@@ -189,27 +163,21 @@ export const Cart = () => {
                   <span className="text-primary font-medium">₹{totalPrice().toFixed(0)}</span>
                 </div>
                 <div className="flex justify-between font-body-md text-body-md text-on-surface-variant">
-                  <span>Shipping</span>
-                  <span className="text-primary font-medium">Free</span>
-                </div>
-                <div className="flex justify-between font-body-md text-body-md text-on-surface-variant">
-                  <span>Estimated Tax</span>
-                  <span className="text-primary font-medium">Calculated at checkout</span>
+                  <span>Delivery</span>
+                  <span className="text-primary font-medium">{totalPrice() >= 1499 ? "Free" : "₹60"}</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-end border-t border-surface-variant pt-4 mb-stack-lg">
                 <span className="font-headline-md text-[20px] text-primary">Total</span>
-                <span className="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">₹{totalPrice().toFixed(0)}</span>
+                <span className="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">
+                  ₹{(totalPrice() + (totalPrice() >= 1499 ? 0 : 60)).toFixed(0)}
+                </span>
               </div>
 
               <Link to="/checkout" className="w-full bg-secondary text-on-secondary font-label-md text-label-md py-4 rounded-md uppercase tracking-wider shadow-sm hover:shadow-md hover:opacity-90 transition-all duration-200 focus:outline-none flex justify-center items-center">
                 Checkout
               </Link>
-
-              <p className="font-body-md text-[13px] text-center text-on-surface-variant mt-4">
-                Secure checkout via UPI — GPay, PhonePe, BHIM
-              </p>
             </div>
           </div>
         </div>

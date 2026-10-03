@@ -47,7 +47,6 @@ const infoLinks = [
   { to: "/privacy", label: "Privacy Policy" },
   { to: "/terms", label: "Terms of Service" },
   { to: "/shipping", label: "Shipping Info" },
-  { to: "/contact", label: "Contact Us" },
 ];
 
 const instagramAccounts = [
@@ -83,7 +82,7 @@ export const Footer = () => {
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pt-16 pb-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
 
-          {/* Col 1 — Brand */}
+          {/* Col 1 - Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="inline-block font-bold text-[22px] text-white tracking-tight mb-3">
               Magnet Memorie
@@ -97,7 +96,7 @@ export const Footer = () => {
             </span>
           </div>
 
-          {/* Col 2 — Shop */}
+          {/* Col 2 - Shop */}
           <div>
             <p className="font-label-md text-label-md text-white uppercase tracking-wider mb-5">Shop</p>
             <ul className="flex flex-col gap-3">
@@ -114,7 +113,7 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Col 3 — Info */}
+          {/* Col 3 - Info */}
           <div>
             <p className="font-label-md text-label-md text-white uppercase tracking-wider mb-5">Info</p>
             <ul className="flex flex-col gap-3">
@@ -131,7 +130,7 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Col 4 — Follow */}
+          {/* Col 4 - Follow */}
           <div>
             <p className="font-label-md text-label-md text-white uppercase tracking-wider mb-5">Follow Us</p>
             

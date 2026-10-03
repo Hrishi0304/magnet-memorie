@@ -10,7 +10,7 @@ const related = [
     to: "/shop/square-magnets",
     title: "Square Magnets",
     subtitle: "Classic glossy photo magnets in multiple square sizes.",
-    priceLabel: "Starting at ₹99",
+    priceLabel: "₹149 per piece",
     imageUrl: "/2.5-inch.png"
   }
 ];
@@ -22,12 +22,12 @@ export const AcrylicMagnets = () => {
         category="Acrylic Magnets"
         title="Premium Acrylic Photo Magnets"
         badge="New Arrival"
-        description="Crystal-clear acrylic magnets with vivid, edge-to-edge photo printing and a powerful magnetic base. Thicker and more premium than standard magnets — perfect for gifting, displaying, or preserving your most cherished moments."
+        description="Crystal-clear acrylic magnets with vivid, edge-to-edge photo printing and a powerful magnetic base. Thicker and more premium than standard magnets - perfect for gifting, displaying, or preserving your most cherished moments."
         images={images}
         variants={[
-          { id: "ac-2.5x3.5", label: '2.5×3.5"', price: 129, priceLabel: "per piece" },
-          { id: "ac-3x4",     label: '3×4"',     price: 149, priceLabel: "per piece" },
-          { id: "ac-3x4-std", label: '3×4" + Stand', price: 169, priceLabel: "per piece" },
+          { id: "ac-2.5x3.5", label: '2.5×3.5"', price: 199, priceLabel: "per piece" },
+          { id: "ac-2.5x3.5-std", label: '2.5×3.5" + Stand', price: 239, priceLabel: "per piece" },
+          { id: "ac-2.5x6.5", label: '2.5×6.5"', price: 299, priceLabel: "per piece" },
         ]}
         features={[
           "Crystal-clear acrylic finish",
