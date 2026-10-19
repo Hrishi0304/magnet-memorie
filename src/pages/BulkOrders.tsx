@@ -1,16 +1,31 @@
 import { useState } from "react";
 import { CustomSelect } from "../components/ui/CustomSelect";
+import { CustomMultiSelect } from "../components/ui/CustomMultiSelect";
+import { PdfModal } from "../components/ui/PdfModal";
+
+// ─── Environment Variables ──────────────────────────────────────────────────
+const OWNER_WHATSAPP = import.meta.env.VITE_OWNER_WHATSAPP || "919876543210";
+const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || "";
+// ──────────────────────────────────────────────────────────────────────────────
 
 type OrderMode = "regular" | "event";
 
 export const BulkOrders = () => {
   const [orderMode, setOrderMode] = useState<OrderMode>("regular");
-  const [eventType, setEventType] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [eventAddress, setEventAddress] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [selectedTypes, setSelectedTypes] = useState({ square: false, acrylic: false });
-  const [squareSize, setSquareSize] = useState("");
-  const [acrylicSize, setAcrylicSize] = useState("");
+  const [squareSizes, setSquareSizes] = useState<string[]>([]);
+  const [acrylicSizes, setAcrylicSizes] = useState<string[]>([]);
+  const [regularQuantity, setRegularQuantity] = useState("");
+  const [eventType, setEventType] = useState("");
+  const [eventQuantity, setEventQuantity] = useState("");
+  const [eventAddress, setEventAddress] = useState("");
+  const [message, setMessage] = useState("");
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const eventQtyOptions = ["100 - 250", "251 - 500", "500 - 1000", "1000+"];
   const squareSizeOptions = ["2.5×2.5\""];
@@ -18,7 +33,109 @@ export const BulkOrders = () => {
 
   const handleModeChange = (mode: OrderMode) => {
     setOrderMode(mode);
-    setQuantity("");
+    setError("");
+  };
+
+  const handleFormSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setError("");
+
+    if (!name.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+    if (!phone.trim()) {
+      setError("Please enter your phone number.");
+      return;
+    }
+    if (!selectedTypes.square && !selectedTypes.acrylic) {
+      setError("Please select at least one magnet type (Square or Acrylic).");
+      return;
+    }
+    if (selectedTypes.square && squareSizes.length === 0) {
+      setError("Please select at least one size for Square Photo Magnets.");
+      return;
+    }
+    if (selectedTypes.acrylic && acrylicSizes.length === 0) {
+      setError("Please select at least one size for Acrylic Photo Magnets.");
+      return;
+    }
+
+    const qty = orderMode === "regular" ? regularQuantity : eventQuantity;
+    if (!qty) {
+      setError(
+        orderMode === "regular"
+          ? "Please enter the number of magnets (min. 25)."
+          : "Please select an estimated quantity range for your event."
+      );
+      return;
+    }
+    if (orderMode === "regular" && Number(qty) < 25) {
+      setError("Minimum order quantity for regular bulk is 25 magnets.");
+      return;
+    }
+
+    if (orderMode === "event") {
+      if (!eventType) {
+        setError("Please select the event / occasion type.");
+        return;
+      }
+      if (!eventAddress.trim()) {
+        setError("Please provide an event address or Google Maps link.");
+        return;
+      }
+    }
+
+    const products: string[] = [];
+    if (selectedTypes.square) {
+      products.push(`• Square Magnets: ${squareSizes.join(", ")}`);
+    }
+    if (selectedTypes.acrylic) {
+      products.push(`• Acrylic Magnets: ${acrylicSizes.join(", ")}`);
+    }
+
+    const lines = [
+      `📦 *New Bulk Enquiry — MagnetMemorie*`,
+      ``,
+      `*Client Name:* ${name.trim()}`,
+      `*Phone:* ${phone.trim()}`,
+      email.trim() ? `*Email:* ${email.trim()}` : null,
+      `*Order Type:* ${orderMode === "event" ? "Event Order" : "Regular Bulk"}`,
+      ``,
+      `*Products:*`,
+      products.join("\n"),
+      ``,
+      `*Quantity:* ${qty} ${orderMode === "regular" ? "magnets" : ""}`,
+      orderMode === "event" ? `*Event / Occasion:* ${eventType}` : null,
+      orderMode === "event" ? `*Venue / Address:* ${eventAddress.trim()}` : null,
+      message.trim() ? `\n*Additional Details:*\n${message.trim()}` : null,
+    ].filter(Boolean);
+
+    const whatsappUrl = `https://wa.me/${OWNER_WHATSAPP}?text=${encodeURIComponent(lines.join("\n"))}`;
+
+    if (APPS_SCRIPT_URL) {
+      fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify({
+          type: "bulk_enquiry",
+          customerName: name.trim(),
+          phone: phone.trim(),
+          email: email.trim(),
+          orderMode: orderMode,
+          products: products.join("; "),
+          quantity: qty,
+          eventType: orderMode === "event" ? eventType : "",
+          eventAddress: orderMode === "event" ? eventAddress.trim() : "",
+          message: message.trim(),
+          date: new Date().toLocaleString("en-IN"),
+        }),
+        headers: { "Content-Type": "text/plain" },
+      }).catch(() => {});
+    }
+
+    window.open(whatsappUrl, "_blank");
+    setSubmitted(true);
   };
 
   return (
@@ -68,7 +185,7 @@ export const BulkOrders = () => {
             </p>
           </div>
 
-          <form className="flex flex-col gap-5">
+          <form onSubmit={handleFormSubmit} className="flex flex-col gap-5">
 
             {/* Order Type Toggle */}
             <div>
@@ -110,21 +227,31 @@ export const BulkOrders = () => {
             {/* Name + Phone */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label htmlFor="bulk-name" className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Full Name</label>
+                <label htmlFor="bulk-name" className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
+                  Full Name <span className="text-magnet-red">*</span>
+                </label>
                 <input
                   type="text"
                   id="bulk-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="Rahul Sharma"
                   className="w-full bg-white rounded px-4 py-3 font-body-md text-on-surface border border-outline-variant/40 focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-colors"
+                  required
                 />
               </div>
               <div>
-                <label htmlFor="bulk-phone" className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Phone Number</label>
+                <label htmlFor="bulk-phone" className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
+                  Phone Number <span className="text-magnet-red">*</span>
+                </label>
                 <input
                   type="tel"
                   id="bulk-phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   placeholder="+91 98765 43210"
                   className="w-full bg-white rounded px-4 py-3 font-body-md text-on-surface border border-outline-variant/40 focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-colors"
+                  required
                 />
               </div>
             </div>
@@ -135,6 +262,8 @@ export const BulkOrders = () => {
               <input
                 type="email"
                 id="bulk-email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 className="w-full bg-white rounded px-4 py-3 font-body-md text-on-surface border border-outline-variant/40 focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-colors"
               />
@@ -158,13 +287,13 @@ export const BulkOrders = () => {
                   
                   {selectedTypes.square && (
                     <div className="mt-4" style={{ animation: "fadeSlideIn 0.2s ease forwards" }}>
-                      <CustomSelect
+                      <CustomMultiSelect
                         id="bulk-square-size"
-                        label="Size"
-                        placeholder="Select size"
+                        label="Size(s)"
+                        placeholder="Select size(s)"
                         options={squareSizeOptions}
-                        value={squareSize}
-                        onChange={setSquareSize}
+                        value={squareSizes}
+                        onChange={setSquareSizes}
                       />
                     </div>
                   )}
@@ -184,13 +313,13 @@ export const BulkOrders = () => {
                   
                   {selectedTypes.acrylic && (
                     <div className="mt-4" style={{ animation: "fadeSlideIn 0.2s ease forwards" }}>
-                      <CustomSelect
+                      <CustomMultiSelect
                         id="bulk-acrylic-size"
-                        label="Size"
-                        placeholder="Select size"
+                        label="Size(s)"
+                        placeholder="Select size(s)"
                         options={acrylicSizeOptions}
-                        value={acrylicSize}
-                        onChange={setAcrylicSize}
+                        value={acrylicSizes}
+                        onChange={setAcrylicSizes}
                       />
                     </div>
                   )}
@@ -202,44 +331,77 @@ export const BulkOrders = () => {
             {orderMode === "regular" && (
               <div>
                 <label htmlFor="bulk-qty-regular" className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
-                  Number of Magnets <span className="text-on-surface-variant font-normal">(min. 25)</span>
+                  Number of Magnets <span className="text-magnet-red">*</span> <span className="text-on-surface-variant font-normal">(min. 25)</span>
                 </label>
                 <input
                   type="number"
                   id="bulk-qty-regular"
                   min={25}
+                  value={regularQuantity}
+                  onChange={(e) => setRegularQuantity(e.target.value)}
                   placeholder="e.g. 50"
                   className="w-full bg-white rounded px-4 py-3 font-body-md text-on-surface border border-outline-variant/40 focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-colors"
+                  required
                 />
               </div>
             )}
 
-            {/* Event Order - occasion type + quantity */}
+            {/* Event Order - Live Stalls Pricing Banner + occasion type + quantity */}
             {orderMode === "event" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-20" style={{ animation: "fadeSlideIn 0.2s ease forwards" }}>
-                <CustomSelect
-                  id="bulk-event"
-                  label="Event / Occasion"
-                  placeholder="Select type"
-                  options={[
-                    "Wedding / Sangeet",
-                    "Birthday Party",
-                    "Corporate Gift",
-                    "School / College Reunion",
-                    "Baby Shower",
-                    "Other",
-                  ]}
-                  value={eventType}
-                  onChange={setEventType}
-                />
-                <CustomSelect
-                  id="bulk-qty"
-                  label="Quantity (min. 100)"
-                  placeholder="Select range"
-                  options={eventQtyOptions}
-                  value={quantity}
-                  onChange={setQuantity}
-                />
+              <div className="flex flex-col gap-5" style={{ animation: "fadeSlideIn 0.2s ease forwards" }}>
+                {/* Live Stalls Pricing Banner */}
+                <div className="rounded-lg p-4 border border-magnet-red/30 bg-magnet-red/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 transition-colors">
+                  <div className="flex items-start sm:items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-magnet-red/10 flex items-center justify-center flex-shrink-0 text-magnet-red">
+                      <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        storefront
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-label-md text-sm text-primary font-semibold">
+                        Live Magnet Making Stall
+                      </p>
+                      <p className="font-body-md text-xs text-on-surface-variant">
+                        Instant photo magnets printed on-site for weddings, birthdays & celebrations.
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsPdfModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 text-magnet-red hover:text-secondary font-label-md text-xs font-semibold underline underline-offset-4 cursor-pointer self-start sm:self-auto whitespace-nowrap transition-colors"
+                  >
+                    <span>livestalls pricing click here</span>
+                    <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-20">
+                  <CustomSelect
+                    id="bulk-event"
+                    label="Event / Occasion"
+                    placeholder="Select type"
+                    options={[
+                      "Wedding / Sangeet",
+                      "Birthday Party",
+                      "Corporate Gift",
+                      "School / College Reunion",
+                      "Baby Shower",
+                      "Other",
+                    ]}
+                    value={eventType}
+                    onChange={setEventType}
+                  />
+                  <CustomSelect
+                    id="bulk-qty"
+                    label="Quantity (min. 100)"
+                    placeholder="Select range"
+                    options={eventQtyOptions}
+                    value={eventQuantity}
+                    onChange={setEventQuantity}
+                  />
+                </div>
               </div>
             )}
 
@@ -271,17 +433,28 @@ export const BulkOrders = () => {
               <textarea
                 id="bulk-message"
                 rows={4}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 placeholder="Tell us about your event, preferred magnet type, custom text or design requirements..."
                 className="w-full bg-white rounded px-4 py-3 font-body-md text-on-surface border border-outline-variant/40 focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-colors resize-none"
               />
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-magnet-red/40 rounded text-magnet-red text-xs font-label-sm flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">error</span>
+                <span>{error}</span>
+              </div>
+            )}
+
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-magnet-red text-white font-label-md text-label-md py-4 rounded shadow-sm hover:shadow-md hover:bg-secondary transition-all duration-200 uppercase tracking-wider mt-2"
+              className="w-full bg-magnet-red text-white font-label-md text-label-md py-4 rounded shadow-sm hover:shadow-md hover:bg-secondary transition-all duration-200 uppercase tracking-wider mt-2 flex items-center justify-center gap-2 cursor-pointer"
             >
-              Send Enquiry
+              <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
+              <span>Send Enquiry via WhatsApp</span>
             </button>
 
             <p className="text-center font-body-md text-[13px] text-on-surface-variant">
@@ -290,6 +463,56 @@ export const BulkOrders = () => {
           </form>
         </div>
       </section>
+
+      {/* Success Confirmation Modal */}
+      {submitted && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center border border-outline-variant/30 flex flex-col items-center">
+            <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
+              <span className="material-symbols-outlined text-[32px]">check_circle</span>
+            </div>
+            <h3 className="font-headline-md text-xl text-primary mb-2">Enquiry Forwarded to WhatsApp</h3>
+            <p className="font-body-md text-sm text-on-surface-variant mb-6">
+              Your bulk order enquiry has been pre-formatted and opened on WhatsApp. Send the message to chat directly with our team for your custom quote!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => handleFormSubmit()}
+                className="flex-1 bg-magnet-red text-white font-label-md text-xs py-3 rounded hover:bg-secondary transition-colors cursor-pointer"
+              >
+                Reopen WhatsApp
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSubmitted(false);
+                  setName("");
+                  setPhone("");
+                  setEmail("");
+                  setRegularQuantity("");
+                  setEventQuantity("");
+                  setEventAddress("");
+                  setMessage("");
+                  setSquareSizes([]);
+                  setAcrylicSizes([]);
+                  setSelectedTypes({ square: false, acrylic: false });
+                }}
+                className="flex-1 bg-surface-container text-on-surface font-label-md text-xs py-3 rounded hover:bg-surface-container-high transition-colors cursor-pointer"
+              >
+                New Enquiry
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <PdfModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        pdfUrl="/live stall pag 1.pdf"
+        title="Live Magnet Making Stall - Packages & Pricing"
+      />
 
       <style>{`
         @keyframes fadeSlideIn {

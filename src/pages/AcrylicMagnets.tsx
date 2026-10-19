@@ -2,8 +2,10 @@ import { ProductDetailPage } from "../components/ui/ProductDetailPage";
 import { RelatedProducts } from "../components/ui/RelatedProducts";
 
 const images = [
-  "/acrylic-2.png"
-]
+  "/acrylic-2.png",
+  "/acrylic-stand.jpeg",
+  "/acrylic-2.5x6.5.jpeg",
+];
 
 const related = [
   {
@@ -25,9 +27,9 @@ export const AcrylicMagnets = () => {
         description="Crystal-clear acrylic magnets with vivid, edge-to-edge photo printing and a powerful magnetic base. Thicker and more premium than standard magnets - perfect for gifting, displaying, or preserving your most cherished moments."
         images={images}
         variants={[
-          { id: "ac-2.5x3.5", label: '2.5×3.5"', price: 199, priceLabel: "per piece" },
-          { id: "ac-2.5x3.5-std", label: '2.5×3.5" + Stand', price: 239, priceLabel: "per piece" },
-          { id: "ac-2.5x6.5", label: '2.5×6.5"', price: 299, priceLabel: "per piece" },
+          { id: "ac-2.5x3.5", label: '2.5×3.5"', price: 199, priceLabel: "per piece", imageUrl: "/acrylic-2.png" },
+          { id: "ac-2.5x3.5-std", label: '2.5×3.5" + Stand', price: 239, priceLabel: "per piece", imageUrl: "/acrylic-stand.jpeg" },
+          { id: "ac-2.5x6.5", label: '2.5×6.5"', price: 299, priceLabel: "per piece", imageUrl: "/acrylic-2.5x6.5.jpeg" },
         ]}
         features={[
           "Crystal-clear acrylic finish",

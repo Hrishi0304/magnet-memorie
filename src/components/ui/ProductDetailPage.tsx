@@ -8,6 +8,7 @@ interface SizeVariant {
   label: string;   // "2×2 inches"
   price: number;
   priceLabel: string; // "₹99 per piece"
+  imageUrl?: string;
 }
 
 interface ProductDetailPageProps {
@@ -32,11 +33,27 @@ export const ProductDetailPage = ({
   note,
 }: ProductDetailPageProps) => {
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
+  const [selectedImage, setSelectedImage] = useState(variants[0]?.imageUrl || images[0] || "");
   const [quantity, setQuantity] = useState(1);
   const [previews, setPreviews] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const addItem = useCartStore((state) => state.addItem);
+
+  const handleVariantSelect = (v: SizeVariant) => {
+    setSelectedVariant(v);
+    if (v.imageUrl) {
+      setSelectedImage(v.imageUrl);
+    }
+  };
+
+  const handleThumbnailClick = (img: string) => {
+    setSelectedImage(img);
+    const matched = variants.find((v) => v.imageUrl === img);
+    if (matched) {
+      setSelectedVariant(matched);
+    }
+  };
 
   const handleFiles = (files: FileList | null) => {
     if (!files) return;
@@ -70,7 +87,7 @@ export const ProductDetailPage = ({
       title: `${title} ${selectedVariant.label}`,
       price: selectedVariant.price,
       quantity: quantity,
-      imageUrl: images[0],
+      imageUrl: selectedVariant.imageUrl || selectedImage || images[0],
       uploads: previews,
     });
 
@@ -96,7 +113,7 @@ export const ProductDetailPage = ({
           {/* Main Image */}
           <div className="w-full aspect-square rounded-xl overflow-hidden bg-surface-container relative group">
             <img
-              src={images[0]}
+              src={selectedImage || images[0]}
               alt={title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
@@ -106,6 +123,26 @@ export const ProductDetailPage = ({
               </span>
             )}
           </div>
+
+          {/* Thumbnails */}
+          {images.length > 1 && (
+            <div className="flex gap-3 overflow-x-auto pb-1">
+              {images.map((img, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleThumbnailClick(img)}
+                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 cursor-pointer ${
+                    selectedImage === img
+                      ? "border-magnet-red shadow-sm ring-1 ring-magnet-red"
+                      : "border-outline-variant/40 hover:border-outline opacity-70 hover:opacity-100"
+                  }`}
+                >
+                  <img src={img} alt={`${title} preview ${idx + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* RIGHT - Product Info */}
@@ -144,7 +181,7 @@ export const ProductDetailPage = ({
               {variants.map((v) => (
                 <button
                   key={v.id}
-                  onClick={() => setSelectedVariant(v)}
+                  onClick={() => handleVariantSelect(v)}
                   className={`px-4 py-2 rounded-full border font-label-sm text-label-sm transition-all duration-200 ${
                     selectedVariant.id === v.id
                       ? "border-deep-onyx bg-deep-onyx text-white shadow-sm"
@@ -283,7 +320,7 @@ export const ProductDetailPage = ({
               {isUploadValid ? `Add to Cart ₹${(selectedVariant.price * quantity).toFixed(0)}` : `Upload ${quantity} photos to Add`}
             </button>
             <p className="text-center font-label-sm text-label-sm text-on-surface-variant">
-              Free shipping on orders above ₹1499
+              Free shipping on orders above ₹999
             </p>
           </div>
 
