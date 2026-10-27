@@ -23,7 +23,7 @@ export const SquareMagnets = () => {
         description="Premium personalised photo magnets featuring a strong 5-layer construction, glossy finish, and powerful magnetic hold. Upload your favourite memory and we'll craft it into a stunning keepsake - built to last, made to display."
         images={images}
         variants={[
-          { id: "sq-2.5x2.5", label: '2.5×2.5"', price: 149, priceLabel: "per piece" },
+          { id: "sq-2.5x2.5", label: '2.5×2.5"', price: 129, priceLabel: "per piece" },
         ]}
         features={[
           "High-definition photo printing",

@@ -320,7 +320,7 @@ export const ProductDetailPage = ({
               {isUploadValid ? `Add to Cart ₹${(selectedVariant.price * quantity).toFixed(0)}` : `Upload ${quantity} photos to Add`}
             </button>
             <p className="text-center font-label-sm text-label-sm text-on-surface-variant">
-              Free shipping on orders above ₹999
+              Free shipping on orders above ₹499
             </p>
           </div>
 
