@@ -24,7 +24,7 @@ export const Checkout = () => {
   const { items, totalPrice, clearCart } = useCartStore();
 
   const total = totalPrice();
-  const deliveryFee = total === 0 ? 0 : total >= 1499 ? 0 : 60;
+  const deliveryFee = total === 0 ? 0 : total >= 499 ? 0 : 60;
   const finalTotal = total === 0 ? 0 : total + deliveryFee;
 
   // ── Form State ──────────────────────────────────────────────────────────────

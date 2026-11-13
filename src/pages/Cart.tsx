@@ -164,14 +164,14 @@ export const Cart = () => {
                 </div>
                 <div className="flex justify-between font-body-md text-body-md text-on-surface-variant">
                   <span>Delivery</span>
-                  <span className="text-primary font-medium">{totalPrice() >= 1499 ? "Free" : "₹60"}</span>
+                  <span className="text-primary font-medium">{totalPrice() >= 499 ? "Free" : "₹60"}</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-end border-t border-surface-variant pt-4 mb-stack-lg">
                 <span className="font-headline-md text-[20px] text-primary">Total</span>
                 <span className="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">
-                  ₹{(totalPrice() + (totalPrice() >= 1499 ? 0 : 60)).toFixed(0)}
+                  ₹{(totalPrice() + (totalPrice() >= 499 ? 0 : 60)).toFixed(0)}
                 </span>
               </div>
 
