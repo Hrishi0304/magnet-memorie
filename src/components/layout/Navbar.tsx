@@ -35,7 +35,7 @@ export const Navbar = () => {
           >
             <Menu size={24} />
           </button>
-          <Link to="/" className="font-bold tracking-tight">Magnet Memorie</Link>
+          <Link to="/" className="font-bold tracking-tight">Magnet Memories</Link>
           <nav className="hidden md:flex space-x-6 items-center ml-6">
             {navLinks.map(({ to, label }) => (
               <NavLink key={to} to={to} className={navLinkClass}>

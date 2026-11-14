@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "magnet-memorie-ui"
+    "default": "magnet-memorie-ui",
+    "live": "magnet-memorie"
   },
   "targets": {},
   "etags": {}
